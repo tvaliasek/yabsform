@@ -5,24 +5,11 @@ namespace YABSForm\Controls;
 
 
 use DiDom\Document;
-use Nette\Forms\Controls\CheckboxList;
+use Nette\Forms\Controls\RadioList;
 use Nette\Utils\Html;
 
-class CustomCheckboxList extends CheckboxList
+class CustomRadioList extends RadioList
 {
-
-    protected $renderAsSwitches = false;
-
-    /**
-     * @param bool $state
-     * @return CustomCheckboxList
-     */
-    public function renderAsSwitches(bool $state): self
-    {
-        $this->renderAsSwitches = $state;
-        return $this;
-    }
-
     /**
      * Generates control's HTML element.
      */
@@ -39,7 +26,7 @@ class CustomCheckboxList extends CheckboxList
         // fix labels html structure, class names and missing html ids
         foreach ($dom->find('label') as $index => $label) {
             $label->setAttribute('class', 'custom-control-label');
-            $labelClassnames = ('custom-control custom-' . (($this->renderAsSwitches) ? 'switch' : 'checkbox'));
+            $labelClassnames = 'custom-control custom-radio';
             if ($this->hasErrors()) {
                 $labelClassnames .= ' is-invalid';
             }

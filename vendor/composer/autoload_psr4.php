@@ -6,5 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'DiDom\\' => array($vendorDir . '/imangazaliev/didom/src/DiDom'),
     'Contributte\\Forms\\' => array($vendorDir . '/tvaliasek/contributte-forms/src'),
 );

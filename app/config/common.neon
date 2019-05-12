@@ -13,6 +13,7 @@ session:
 extensions:
     yabsform.controls: YABSForm\DI\FormControlsExtension
     yabsform.formFactory: YABSForm\DI\FormFactoryExtension
+    yabsform.formMacros: YABSForm\DI\FormMacrosExtension
 
 services:
 	router: App\Router\RouterFactory::createRouter

@@ -1,27 +1,49 @@
+{block head}
+    <style>
+        .__yabsform-is-invalid ~ .invalid-feedback,
+        .custom-range.is-invalid ~ .invalid-feedback,
+        .custom-file.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+    </style>
+{/block}
+
 {block content}
     <div class="container mt-5">
         <h1>Contributte/Forms</h1>
         <hr/>
 
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-6">
+        <div n:if="false" class="row justify-content-center">
+            <div class="col-12 col-lg-4">
                 <h3>Basic form { control basicForm }</h3>
                 {control basicForm}
             </div>
-        </div>
 
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-4">
                 <h3>Manualy rendered form { label } + { input }</h3>
-                todo
+                {form manualForm}
+                    {label text /}
+                    {input text}
+                    <p>
+                        {input submit}
+                    </p>
+                {/form}
             </div>
-        </div>
 
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-4">
                 <h3>Manualy rendered form { pair }</h3>
                 todo
             </div>
         </div>
     </div>
+{/block}
+
+{block scripts}
+    {include parent}
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script>
+        jQuery(function() {
+            bsCustomFileInput.init();
+        });
+    </script>
 {/block}

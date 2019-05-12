@@ -13,6 +13,10 @@ class ComposerStaticInit091ed5d24b4127ffc48411e34be2086f
     );
 
     public static $prefixLengthsPsr4 = array (
+        'D' => 
+        array (
+            'DiDom\\' => 6,
+        ),
         'C' => 
         array (
             'Contributte\\Forms\\' => 18,
@@ -20,6 +24,10 @@ class ComposerStaticInit091ed5d24b4127ffc48411e34be2086f
     );
 
     public static $prefixDirsPsr4 = array (
+        'DiDom\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/imangazaliev/didom/src/DiDom',
+        ),
         'Contributte\\Forms\\' => 
         array (
             0 => __DIR__ . '/..' . '/tvaliasek/contributte-forms/src',

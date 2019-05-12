@@ -2,7 +2,6 @@
 
 namespace YABSForm\Renderers;
 
-use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\Button;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Controls\CheckboxList;
@@ -11,9 +10,14 @@ use Nette\Forms\Controls\RadioList;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\TextBase;
 use Nette\Forms\Form;
+use Nette\Forms\IControl;
 use Nette\Forms\Rendering\DefaultFormRenderer;
-use Tracy\Debugger;
+use Nette\Utils\Html;
+use Nette\Utils\IHtmlString;
 use YABSForm\Controls\CustomCheckbox;
+use YABSForm\Controls\CustomCheckboxList;
+use YABSForm\Controls\CustomRadioList;
+use YABSForm\Controls\CustomUpload;
 
 class BootstrapFormRenderer extends DefaultFormRenderer
 {
@@ -44,9 +48,9 @@ class BootstrapFormRenderer extends DefaultFormRenderer
         'control' => [
             'container' => '',
             '.odd' => null,
-            'description' => 'span class="form-text"',
+            'description' => 'span class="form-text text-muted"',
             'requiredsuffix' => '',
-            'errorcontainer' => 'span class="form-text"',
+            'errorcontainer' => 'span class="invalid-feedback"',
             'erroritem' => '',
             '.required' => 'required',
             '.text' => 'text',
@@ -55,6 +59,7 @@ class BootstrapFormRenderer extends DefaultFormRenderer
             '.submit' => 'button',
             '.image' => 'imagebutton',
             '.button' => 'button',
+            '.error' => 'is-invalid'
         ],
         'label' => [
             'container' => '',
@@ -62,7 +67,7 @@ class BootstrapFormRenderer extends DefaultFormRenderer
             'requiredsuffix' => '',
         ],
         'hidden' => [
-            'container' => 'div',
+            'container' => 'div class="d-none"',
         ],
     ];
 
@@ -81,12 +86,6 @@ class BootstrapFormRenderer extends DefaultFormRenderer
 
         foreach ($form->getControls() as $control) {
 
-            /*if (
-                $control instanceof BaseControl
-            ) {
-                $control->getLabelPrototype()->addClass('col-form-label');
-            }*/
-
             switch (true) {
                 case $control instanceof Button:
                     /** @var string|null $class */
@@ -96,17 +95,19 @@ class BootstrapFormRenderer extends DefaultFormRenderer
                         $usedPrimary = true;
                     }
                     break;
-
                 case $control instanceof TextBase:
                 case $control instanceof SelectBox:
                 case $control instanceof MultiSelectBox:
                     $control->getControlPrototype()->addClass('form-control');
                     break;
-
                 case $control instanceof CustomCheckbox:
                     $control->getSeparatorPrototype()->setName('div');
                     $control->getControlPrototype()->addClass('custom-control-input');
                     $control->getLabelPrototype()->addClass('custom-control-label');
+                    break;
+                case $control instanceof CustomCheckboxList:
+                case $control instanceof CustomRadioList:
+                    $control->getSeparatorPrototype()->setName('div');
                     break;
                 case $control instanceof Checkbox:
                 case $control instanceof CheckboxList:
@@ -120,4 +121,64 @@ class BootstrapFormRenderer extends DefaultFormRenderer
 
         return parent::render($form, $mode);
     }
+
+    /**
+     * Renders 'control' part of visual row of controls.
+     * @param IControl $control
+     * @return Html
+     */
+    public function renderControl(IControl $control): Html
+    {
+        $body = $this->getWrapper('control container');
+        if ($this->counter % 2) {
+            $body->class($this->getValue('control .odd'), true);
+        }
+
+        $description = $control->getOption('description');
+        if ($description instanceof IHtmlString) {
+            $description = ' ' . $description;
+
+        } elseif ($description != null) { // intentionally ==
+            if ($control instanceof Nette\Forms\Controls\BaseControl) {
+                $description = $control->translate($description);
+            }
+            $description = ' ' . $this->getWrapper('control description')->setText($description);
+
+        } else {
+            $description = '';
+        }
+
+        if ($control->isRequired()) {
+            $description = $this->getValue('control requiredsuffix') . $description;
+        }
+
+        $control->setOption('rendered', true);
+        $el = $control->getControl();
+        if ($el instanceof Html) {
+            if ($el->getName() === 'input') {
+                $el->class($this->getValue("control .$el->type"), true);
+            }
+            $el->class($this->getValue('control .error'), $control->hasErrors());
+        }
+
+        if (
+            $control instanceof CustomCheckbox ||
+            $control instanceof CustomUpload
+        ) {
+            return $body->setHtml($el->addHtml($this->renderErrors($control)) . $description);
+        }
+
+        if (
+            $control instanceof CustomCheckboxList
+        ) {
+            if ($control->hasErrors()) {
+                $el->addAttributes(['class' => '']);
+            }
+            return $body->setHtml($el->addHtml($this->renderErrors($control)) . $description);
+        }
+
+        return $body->setHtml($el . $description . $this->renderErrors($control));
+    }
+
+
 }

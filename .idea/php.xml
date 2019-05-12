@@ -24,6 +24,7 @@
       <path value="$PROJECT_DIR$/vendor/nette/schema" />
       <path value="$PROJECT_DIR$/vendor/latte/latte" />
       <path value="$PROJECT_DIR$/vendor/tvaliasek/contributte-forms" />
+      <path value="$PROJECT_DIR$/vendor/imangazaliev/didom" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.1" />

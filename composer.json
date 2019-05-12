@@ -20,7 +20,8 @@
 		"nette/utils": "^3.0",
 		"latte/latte": "^2.5",
 		"tracy/tracy": "^2.6",
-		"tvaliasek/contributte-forms": "^0.3.2"
+		"tvaliasek/contributte-forms": "^0.3.2",
+		"imangazaliev/didom": "^1.14"
 	},
 	"require-dev": {
 		"nette/tester": "^2.0"
