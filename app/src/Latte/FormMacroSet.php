@@ -19,8 +19,8 @@ class FormMacroSet extends FormMacros
     {
         Debugger::barDump('install');
         $me = new static($compiler);
-        $me->addMacro('label', [$me, 'macroLabel'], [$me, 'macroLabelEnd'], null, self::AUTO_EMPTY);
-        $me->addMacro('input', [$me, 'macroInput']);
+        $me->addMacro('bsLabel', [$me, 'macroLabel']);
+        $me->addMacro('bsInput', [$me, 'macroInput']);
     }
 
     /**
@@ -38,12 +38,17 @@ class FormMacroSet extends FormMacros
         $node->replaced = true;
         $name = array_shift($words);
         $result = $writer->write(
-            ($name[0] === '$' ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word]; if ($_label = $_input' : 'if ($_label = end($this->global->formsStack)[%0.word]')
-            . '->%1.raw) echo $_label'
-            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : ''),
-            $name,
-            $words ? ('getLabelPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')') : 'getLabel()'
+            (
+                ($name[0] === '$')
+                ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word]; if ($_label = $_input'
+                : 'if ($_label = end($this->global->formsStack)[%0.word]'
+            )
+            . ') echo $_form->getRenderer()->renderLabel($_label'
+            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '') .')',
+            $name//,
+            //$words ? ('getLabelPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')') : 'getLabel()'
         );
+
         Debugger::barDump($result);
         return $result;
     }
