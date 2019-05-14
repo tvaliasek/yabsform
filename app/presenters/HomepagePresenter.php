@@ -24,6 +24,7 @@ final class HomepagePresenter extends Nette\Application\UI\Presenter
     protected function createComponentBasicForm(): Nette\Application\UI\Form
     {
         $form = $this->formFactory->create();
+        $form->getRenderer()->setSubmitButtonClassnames('btn-lg btn-primary');
         $form->addCheckbox('normal', 'Normal checkbox');
         $form->addCustomCheckbox('switch', 'Custom checkbox switch')
             ->renderAsSwitch(true);
@@ -83,12 +84,28 @@ final class HomepagePresenter extends Nette\Application\UI\Presenter
         return $form;
     }
 
-    protected function createComponentManualForm(): Nette\Application\UI\Form
+    private function createTestForm(): Nette\Application\UI\Form
     {
         $form = $this->formFactory->create();
+        $form->getRenderer()->setSubmitButtonClassnames('btn-lg btn-primary');
         $form->addText('text', 'Text input label')
             ->setRequired(true);
         $form->addSubmit('submit', 'Submit');
         return $form;
+    }
+
+    protected function createComponentNormalForm(): Nette\Application\UI\Form
+    {
+        return $this->createTestForm();
+    }
+
+    protected function createComponentManualForm(): Nette\Application\UI\Form
+    {
+        return $this->createTestForm();
+    }
+
+    protected function createComponentPairForm(): Nette\Application\UI\Form
+    {
+        return $this->createTestForm();
     }
 }

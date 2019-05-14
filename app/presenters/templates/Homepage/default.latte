@@ -18,21 +18,33 @@
                 <h3>Basic form { control basicForm }</h3>
                 {control basicForm}
             </div>
+        </div>
+        <div class="row justify-content-center">
 
             <div class="col-12 col-lg-4">
-                <h3>Manualy rendered form { label } + { input }</h3>
+                <h3>Normally rendered form { control }</h3>
+                {control normalForm}
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <h3>Manually rendered form { bsLabel } + { bsInput }</h3>
                 {form manualForm}
-                    {bsLabel text}
-                    {input text}
+                    <div class="form-group">
+                        {bsLabel text}
+                        {bsInput text}
+                    </div>
                     <p>
-                        {input submit}
+                        {bsInput submit}
                     </p>
                 {/form}
             </div>
 
             <div class="col-12 col-lg-4">
-                <h3>Manualy rendered form { pair }</h3>
-                todo
+                <h3>Manualy rendered form { bsPair }</h3>
+                {form pairForm}
+                    {bsPair text}
+                    {bsPair submit}
+                {/form}
             </div>
         </div>
     </div>

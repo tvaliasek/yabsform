@@ -11,22 +11,25 @@ use Latte\PhpWriter;
 use Nette\Bridges\FormsLatte\FormMacros;
 use Nette\Forms\IControl;
 use Nette\Utils\Html;
-use Tracy\Debugger;
 
 class FormMacroSet extends FormMacros
 {
     public static function install(Compiler $compiler): void
     {
-        Debugger::barDump('install');
         $me = new static($compiler);
-        $me->addMacro('bsLabel', [$me, 'macroLabel']);
-        $me->addMacro('bsInput', [$me, 'macroInput']);
+        $me->addMacro('bsLabel', [$me, 'macroBsLabel']);
+        $me->addMacro('bsInput', [$me, 'macroBsInput']);
+        $me->addMacro('bsPair', [$me, 'macroBsPair']);
     }
 
     /**
-     * {label ...}
+     * {bsLabel ...}
+     * @param MacroNode $node
+     * @param PhpWriter $writer
+     * @return string
+     * @throws CompileException
      */
-    public function macroLabel(MacroNode $node, PhpWriter $writer)
+    public function macroBsLabel(MacroNode $node, PhpWriter $writer)
     {
         if ($node->modifiers) {
             throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
@@ -49,14 +52,10 @@ class FormMacroSet extends FormMacros
             //$words ? ('getLabelPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')') : 'getLabel()'
         );
 
-        Debugger::barDump($result);
         return $result;
     }
 
-    /**
-     * {input ...}
-     */
-    public function macroInput(MacroNode $node, PhpWriter $writer)
+    public function macroBsPair(MacroNode $node, PhpWriter $writer): string
     {
         if ($node->modifiers) {
             throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
@@ -68,21 +67,59 @@ class FormMacroSet extends FormMacros
         $node->replaced = true;
         $name = array_shift($words);
         return $writer->write(
-            ($name[0] === '$' ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word]; echo $_input' : 'echo end($this->global->formsStack)[%0.word]')
-            . '->%1.raw'
+            (
+            ($name[0] === '$')
+                ? '$_pair = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
+                : '$_pair = end($this->global->formsStack)[%0.word];'
+            )
+            //. '->%1.raw'
+            . 'echo $_form->getRenderer()->renderPair($_pair'
             . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '')
-            . " /* line $node->startLine */",
-            $name,
-            $words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
+            . ") /* line $node->startLine */",
+            $name //,
+        // $words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
         );
     }
 
-    public static function label(Html $label, IControl $control, bool $isPart): Html
+    /**
+     * {bsInput ...}
+     * @param MacroNode $node
+     * @param PhpWriter $writer
+     * @return string
+     * @throws CompileException
+     */
+    public function macroBsInput(MacroNode $node, PhpWriter $writer): string
+    {
+        if ($node->modifiers) {
+            throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
+        }
+        $words = $node->tokenizer->fetchWords();
+        if (!$words) {
+            throw new CompileException('Missing name in ' . $node->getNotation());
+        }
+        $node->replaced = true;
+        $name = array_shift($words);
+        return $writer->write(
+            (
+                ($name[0] === '$')
+                    ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
+                    : '$_input = end($this->global->formsStack)[%0.word];'
+            )
+            //. '->%1.raw'
+            . 'echo $_form->getRenderer()->renderControl($_input'
+            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '')
+            . ") /* line $node->startLine */",
+            $name //,
+            // $words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
+        );
+    }
+
+    public static function bsLabel(Html $label, IControl $control, bool $isPart): Html
     {
         return $label;
     }
 
-    public static function input(Html $input, IControl $control, bool $isPart): Html
+    public static function bsInput(Html $input, IControl $control, bool $isPart): Html
     {
         return $input;
     }
