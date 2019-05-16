@@ -16,16 +16,6 @@ use YABSForm\Controls\CustomUpload;
 
 class FormControlsExtension extends CompilerExtension
 {
-    public function loadConfiguration(): void
-    {
-        // nothing
-    }
-
-    public function beforeCompile(): void
-    {
-        // nothing
-    }
-
     public function afterCompile(Nette\PhpGenerator\ClassType $class): void
     {
         $init = $class->getMethod('initialize');

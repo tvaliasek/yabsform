@@ -50,15 +50,22 @@ class CustomCheckbox extends Checkbox
     public function getControl(): Html
     {
         $controlPart = $this->getControlPart();
+        $classNames = $controlPart->getAttribute('class');
+        if (is_array($classNames)) {
+            $classNames['custom-control-input'] = true;
+        } else {
+            $classNames .= ' custom-control-input';
+        }
+
         if ($this->hasErrors()) {
-            $classNames = $controlPart->getAttribute('class');
             if (is_array($classNames)) {
                 $classNames['is-invalid'] = true;
             } else {
                 $classNames .= ' is-invalid';
             }
-            $controlPart->setAttribute('class', $classNames);
         }
+
+        $controlPart->setAttribute('class', $classNames);
         return $this->wrapper
             ->insert(0, $controlPart)
             ->insert(1, $this->getLabelPart());

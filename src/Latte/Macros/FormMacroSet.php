@@ -9,9 +9,12 @@ use Latte\Compiler;
 use Latte\MacroNode;
 use Latte\PhpWriter;
 use Nette\Bridges\FormsLatte\FormMacros;
-use Nette\Forms\IControl;
-use Nette\Utils\Html;
 
+/**
+ * Class FormMacroSet
+ * Mostly copy-pasted from original nette forms macroset
+ * @package YABSForm\Latte\Macros
+ */
 class FormMacroSet extends FormMacros
 {
     public static function install(Compiler $compiler): void
@@ -20,6 +23,8 @@ class FormMacroSet extends FormMacros
         $me->addMacro('bsLabel', [$me, 'macroBsLabel']);
         $me->addMacro('bsInput', [$me, 'macroBsInput']);
         $me->addMacro('bsPair', [$me, 'macroBsPair']);
+        $me->addMacro('bsErrors', [$me, 'macroBsErrors']);
+        $me->addMacro('bsOwnErrors', [$me, 'macroBsOwnErrors']);
     }
 
     /**
@@ -46,10 +51,8 @@ class FormMacroSet extends FormMacros
                 ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word]; if ($_label = $_input'
                 : 'if ($_label = end($this->global->formsStack)[%0.word]'
             )
-            . ') echo $_form->getRenderer()->renderLabel($_label'
-            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '') .')',
-            $name//,
-            //$words ? ('getLabelPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')') : 'getLabel()'
+            . ') echo $_form->getRenderer()->renderLabel($_label)',
+            $name
         );
 
         return $result;
@@ -72,12 +75,9 @@ class FormMacroSet extends FormMacros
                 ? '$_pair = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
                 : '$_pair = end($this->global->formsStack)[%0.word];'
             )
-            //. '->%1.raw'
             . 'echo $_form->getRenderer()->renderPair($_pair'
-            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '')
             . ") /* line $node->startLine */",
-            $name //,
-        // $words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
+            $name
         );
     }
 
@@ -105,22 +105,41 @@ class FormMacroSet extends FormMacros
                     ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
                     : '$_input = end($this->global->formsStack)[%0.word];'
             )
-            //. '->%1.raw'
             . 'echo $_form->getRenderer()->renderControl($_input'
-            . ($node->tokenizer->isNext() ? '->addAttributes(%node.array)' : '')
             . ") /* line $node->startLine */",
-            $name //,
-            // $words ? 'getControlPart(' . implode(', ', array_map([$writer, 'formatWord'], $words)) . ')' : 'getControl()'
+            $name
         );
     }
 
-    public static function bsLabel(Html $label, IControl $control, bool $isPart): Html
+    /**
+     * {bsErrors ...}
+     * @param MacroNode $node
+     * @param PhpWriter $writer
+     * @return string
+     * @throws CompileException
+     */
+    public function macroBsErrors(MacroNode $node, PhpWriter $writer): string
     {
-        return $label;
+        if ($node->modifiers) {
+            throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
+        }
+        $node->replaced = true;
+        return $writer->write('echo $_form->getRenderer()->renderErrors(null, false, $_form);');
     }
 
-    public static function bsInput(Html $input, IControl $control, bool $isPart): Html
+    /**
+     * {bsErrors ...}
+     * @param MacroNode $node
+     * @param PhpWriter $writer
+     * @return string
+     * @throws CompileException
+     */
+    public function macroBsOwnErrors(MacroNode $node, PhpWriter $writer): string
     {
-        return $input;
+        if ($node->modifiers) {
+            throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
+        }
+        $node->replaced = true;
+        return $writer->write('echo $_form->getRenderer()->renderErrors(null, true, $_form);');
     }
 }

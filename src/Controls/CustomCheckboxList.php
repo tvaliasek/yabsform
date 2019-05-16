@@ -5,11 +5,24 @@ namespace YABSForm\Controls;
 
 
 use DiDom\Document;
-use Nette\Forms\Controls\RadioList;
+use Nette\Forms\Controls\CheckboxList;
 use Nette\Utils\Html;
 
-class CustomRadioList extends RadioList
+class CustomCheckboxList extends CheckboxList
 {
+
+    protected $renderAsSwitches = false;
+
+    /**
+     * @param bool $state
+     * @return CustomCheckboxList
+     */
+    public function renderAsSwitches(bool $state): self
+    {
+        $this->renderAsSwitches = $state;
+        return $this;
+    }
+
     /**
      * Generates control's HTML element.
      */
@@ -26,7 +39,7 @@ class CustomRadioList extends RadioList
         // fix labels html structure, class names and missing html ids
         foreach ($dom->find('label') as $index => $label) {
             $label->setAttribute('class', 'custom-control-label');
-            $labelClassnames = 'custom-control custom-radio';
+            $labelClassnames = ('custom-control custom-' . (($this->renderAsSwitches) ? 'switch' : 'checkbox'));
             if ($this->hasErrors()) {
                 $labelClassnames .= ' is-invalid';
             }
@@ -36,7 +49,7 @@ class CustomRadioList extends RadioList
             );
             $input = $label->find('input')[0];
             $newLabel = clone $label;
-            $inputHtmlId = ('__' . (str_replace('[]', '', $input->getAttribute('name')) . '-' . $index));
+            $inputHtmlId = ('__' . (str_replace('[]', '', ($input->getAttribute('name') . '-' . $index))));
             $input->setAttribute('id', $inputHtmlId);
             if ($this->hasErrors()) {
                 $input->setAttribute('class', ($input->getAttribute('class') . ' is-invalid'));

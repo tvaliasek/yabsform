@@ -17,15 +17,4 @@ class FormFactoryExtension extends CompilerExtension
         $builder->addDefinition($this->prefix('yabsform.formFactory'))
             ->setFactory(BootstrapFormFactory::class, []);
     }
-
-    public function beforeCompile(): void
-    {
-        // nothing
-    }
-
-    public function afterCompile(Nette\PhpGenerator\ClassType $class): void
-    {
-        // nothing
-    }
-
 }
