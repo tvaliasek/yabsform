@@ -144,7 +144,6 @@ class BootstrapFormRenderer extends DefaultFormRenderer
      */
     public function render(Form $form, string $mode = null): string
     {
-        $form->getElementPrototype()->setNovalidate(true);
         return parent::render($form, $mode);
     }
 

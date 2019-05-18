@@ -9,8 +9,6 @@ Only horizontal mode rendering is supported, but other modes should be available
 Todo: 
  - write tests
  - provide more render modes
- - integrate DatePicker and DateTimePicker form input from private repo
- - integrate [tempus dominus](https://tempusdominus.github.io/bootstrap-4/) init js for date pickers
  
 Requirements
 ------------
