@@ -109,6 +109,7 @@ Available is:
  - CustomRange
  - CustomSelect
  - CustomUpload - see [bootstrap docs](https://getbootstrap.com/docs/4.3/components/forms/#file-browser) for displaying names of selected files
+ - DatePicker and DateTimePicker is in separated repo here [Nextras Forms Fork](https://github.com/tvaliasek/forms)
  
 For properly displayed invalid feedback message, you should include this additional style:
     
