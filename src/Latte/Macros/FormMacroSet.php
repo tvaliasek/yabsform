@@ -7,15 +7,15 @@ namespace YABSForm\Latte\Macros;
 use Latte\CompileException;
 use Latte\Compiler;
 use Latte\MacroNode;
+use Latte\Macros\MacroSet;
 use Latte\PhpWriter;
-use Nette\Bridges\FormsLatte\FormMacros;
 
 /**
  * Class FormMacroSet
  * Mostly copy-pasted from original nette forms macroset
  * @package YABSForm\Latte\Macros
  */
-class FormMacroSet extends FormMacros
+class FormMacroSet extends MacroSet
 {
     public static function install(Compiler $compiler): void
     {
