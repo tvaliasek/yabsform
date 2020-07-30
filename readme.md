@@ -1,14 +1,11 @@
-YABSForm
+YABSForm - Nette 3 Bootstrap form renderer with custom controls support
 =================
 
-Another Bootstrap 4 form renderer and custom form components for [Nette framework](https://nette.org).
+Yet another Bootstrap 4 form renderer and custom form components for [Nette framework](https://nette.org).
 Inspired by [contributte/forms](https://github.com/contributte/forms), [nextras/forms](https://github.com/nextras/forms) and [Kdyby/BootstrapFormRenderer](https://github.com/Kdyby/BootstrapFormRenderer).
-
-Only horizontal mode rendering is supported, but other modes should be available soon.
 
 Todo: 
  - write tests
- - provide more render modes
  
 Requirements
 ------------
@@ -76,6 +73,13 @@ Renderer provide few methods whose allow common modifications of rendered output
     // Disables dismissibility of form errors presented as bootstrap alerts
     $renderer->disableDismissibleFormErrors()
     
+    // Set globally size of controls
+    $renderer->setControlSize('lg')
+
+    // Set globally columns for labels and for controls (in vertical render mode)
+    $renderer->setLabelColumns(12, null, null, 4, null)
+    $renderer->setControlColumns(12, null, null, 8, null)
+
     
 ### Custom form macros ###
 

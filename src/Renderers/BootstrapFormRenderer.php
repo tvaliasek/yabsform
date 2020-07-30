@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace YABSForm\Renderers;
 
@@ -22,9 +24,15 @@ use YABSForm\Controls\CustomCheckboxList;
 use YABSForm\Controls\CustomRadioList;
 use YABSForm\Controls\CustomUpload;
 use YABSForm\RenderModes\RenderModeHorizontal;
+use YABSForm\RenderModes\RenderModeVertical;
 
 class BootstrapFormRenderer extends DefaultFormRenderer
 {
+
+    const
+        CONTROL_SIZE_SM = 'sm',
+        CONTROL_SIZE_MD = 'md',
+        CONTROL_SIZE_LG = 'lg';
 
     /**
      * @var array
@@ -34,17 +42,35 @@ class BootstrapFormRenderer extends DefaultFormRenderer
     /**
      * @var string|null
      */
-    protected $submitClassnames;
+    protected $submitClassnames = 'btn';
 
     /**
      * @var string|null
      */
-    protected $buttonClassnames;
+    protected $buttonClassnames = 'btn';
 
     /**
      * @var bool
      */
     protected $dismissibleFormErrors = true;
+
+    protected $controlColumns = [
+        'xs' => 12,
+        'sm' => 12,
+        'md' => 8,
+        'lg' => 8,
+        'xl' => 8
+    ];
+
+    protected $labelColumns = [
+        'xs' => 12,
+        'sm' => 12,
+        'md' => 4,
+        'lg' => 4,
+        'xl' => 4
+    ];
+
+    protected $controlSize = self::CONTROL_SIZE_MD;
 
     /**
      * @var string
@@ -52,10 +78,10 @@ class BootstrapFormRenderer extends DefaultFormRenderer
     protected $renderMode = self::HORIZONTAL_RENDER_MODE;
 
     const HORIZONTAL_RENDER_MODE = 'horizontal';
+    const VERTICAL_RENDER_MODE = 'vertical';
 
     /*
      * @todo doplnit další render modes, pokud je to vůbec potřeba
-        VERTICAL_RENDER_MODE = 'vertical',
         INLINE_RENDER_MODE = 'inline';
     */
 
@@ -70,31 +96,94 @@ class BootstrapFormRenderer extends DefaultFormRenderer
     }
 
     /**
+     * Set global size for all input controls
+     * @param string $size
+     * @return $this
+     */
+    public function setControlSize(string $size = self::CONTROL_SIZE_MD): self
+    {
+        if (!in_array($size, [self::CONTROL_SIZE_MD, self::CONTROL_SIZE_LG, self::CONTROL_SIZE_SM])) {
+            throw new \InvalidArgumentException('Invalid size variant');
+        }
+        $this->controlSize = $size;
+        return $this;
+    }
+
+    public function setLabelColumns(
+        ?int $xs = null,
+        ?int $sm = null,
+        ?int $md = null,
+        ?int $lg = null,
+        ?int $xl = null
+    ): self {
+        $this->labelColumns = $this->getColumns($xs, $sm, $md, $lg, $xl);
+        return $this;
+    }
+
+    protected function getColumns(
+        ?int $xs = null,
+        ?int $sm = null,
+        ?int $md = null,
+        ?int $lg = null,
+        ?int $xl = null
+    ): array {
+        $sizes = [
+            'xs' => $xs,
+            'sm' => $sm,
+            'md' => $md,
+            'lg' => $lg,
+            'xl' => $xl
+        ];
+        foreach ($sizes as $name => $size) {
+            if ($size !== null && ($size <= 0 || $size > 12)) {
+                throw new \InvalidArgumentException('Size ' . $name . ': ' . $size . ' is out of 1 - 12 range.');
+            }
+        }
+        return $sizes;
+    }
+
+    public function setControlColumns(
+        ?int $xs = null,
+        ?int $sm = null,
+        ?int $md = null,
+        ?int $lg = null,
+        ?int $xl = null
+    ): self {
+        $this->controlColumns = $this->getColumns($xs, $sm, $md, $lg, $xl);
+        return $this;
+    }
+
+    /**
      * @param string $renderMode
      * @return BootstrapFormRenderer
      * @throws \InvalidArgumentException
      */
     public function setRenderMode(string $renderMode): self
     {
-        if (!in_array($renderMode, [
-            self::HORIZONTAL_RENDER_MODE
-            /*, @todo
-            self::VERTICAL_RENDER_MODE,
-            self::INLINE_RENDER_MODE
-            */
-        ])) {
-            throw new \InvalidArgumentException('Unknown render mode: ' . $renderMode . ', use BootstrapFormRenderer render mode constants.');
+        if (!in_array(
+            $renderMode,
+            [
+                self::HORIZONTAL_RENDER_MODE,
+                self::VERTICAL_RENDER_MODE
+                /*
+                self::INLINE_RENDER_MODE
+                */
+            ]
+        )) {
+            throw new \InvalidArgumentException(
+                'Unknown render mode: ' . $renderMode . ', use BootstrapFormRenderer render mode constants.'
+            );
         }
 
-        switch($renderMode) {
+        switch ($renderMode) {
             case self::HORIZONTAL_RENDER_MODE:
                 $this->wrappers = RenderModeHorizontal::$wrappers;
                 break;
+            case self::VERTICAL_RENDER_MODE:
+                $this->wrappers = RenderModeVertical::$wrappers;
+                break;
             /*
              * @todo
-            case self::VERTICAL_RENDER_MODE:
-                $this->wrappers = RenderModeHorizontal::$wrappers;
-                break;
             case self::INLINE_RENDER_MODE:
                 $this->wrappers = RenderModeHorizontal::$wrappers;
                 break;
@@ -169,6 +258,19 @@ class BootstrapFormRenderer extends DefaultFormRenderer
         return $pair->render(0);
     }
 
+    protected function getColClassnames(array $sizes): string
+    {
+        $result = [];
+        $prefix = 'col';
+        foreach ($sizes as $name => $size) {
+            if ($size !== null) {
+                $col = (($name === 'xs') ? '-' : ('-' . $name . '-'));
+                $result[] = $prefix . $col . $size;
+            }
+        }
+        return implode(' ', $result);
+    }
+
     /**
      * Renders 'label' part of visual row of controls.
      * @param IControl $control
@@ -176,6 +278,9 @@ class BootstrapFormRenderer extends DefaultFormRenderer
      */
     public function renderLabel(IControl $control): Html
     {
+        if ($this->renderMode === self::VERTICAL_RENDER_MODE) {
+            $control->getLabelPrototype()->addClass($this->getColClassnames($this->labelColumns) . ' col-form-label');
+        }
         switch (true) {
             case $control instanceof CustomCheckbox:
                 $control->getLabelPrototype()->addClass('custom-control-label');
@@ -209,9 +314,15 @@ class BootstrapFormRenderer extends DefaultFormRenderer
         if ($control instanceof SubmitButton) {
             if (!empty($this->submitClassnames)) {
                 $control->getControlPrototype()->addClass($this->submitClassnames);
+            } else {
+                $control->getControlPrototype()->addClass('btn-primary');
             }
-        } else if (!empty($this->buttonClassnames)) {
-            $control->getControlPrototype()->addClass($this->buttonClassnames);
+        } else {
+            if (!empty($this->buttonClassnames)) {
+                $control->getControlPrototype()->addClass($this->buttonClassnames);
+            } else {
+                $control->getControlPrototype()->addClass('btn-secondary');
+            }
         }
 
         return $control;
@@ -232,6 +343,9 @@ class BootstrapFormRenderer extends DefaultFormRenderer
             case $control instanceof SelectBox:
             case $control instanceof MultiSelectBox:
                 $control->getControlPrototype()->addClass('form-control');
+                if ($this->controlSize !== self::CONTROL_SIZE_MD) {
+                    $control->getControlPrototype()->addClass('form-control-' . $this->controlSize);
+                }
                 break;
             case $control instanceof CustomCheckbox:
             case $control instanceof CustomCheckboxList:
@@ -244,6 +358,12 @@ class BootstrapFormRenderer extends DefaultFormRenderer
                 $control->getSeparatorPrototype()->setName('div')->addClass('form-check');
                 $control->getControlPrototype()->addClass('form-check-input');
                 break;
+        }
+
+        if ($this->renderMode === self::VERTICAL_RENDER_MODE) {
+            if (!($control instanceof Button)) {
+                $control->getContainerPrototype()->addClass($this->getColClassnames($this->controlColumns));
+            }
         }
 
         return parent::renderControl($control);
@@ -264,13 +384,11 @@ class BootstrapFormRenderer extends DefaultFormRenderer
             $description = $control->getOption('description');
             if ($description instanceof IHtmlString) {
                 $description = ' ' . $description;
-
             } elseif ($description != null) { // intentionally ==
                 if ($control instanceof BaseControl) {
                     $description = $control->translate($description);
                 }
                 $description = ' ' . $this->getWrapper('control description')->setText($description);
-
             } else {
                 $description = '';
             }
@@ -306,7 +424,8 @@ class BootstrapFormRenderer extends DefaultFormRenderer
     protected function getAlertDismissButton()
     {
         // intentionally A tag instead of BUTTON
-        $button = Html::el('a',
+        $button = Html::el(
+            'a',
             [
                 'href' => 'javascript:void(0);',
                 'class' => 'close',
@@ -316,7 +435,8 @@ class BootstrapFormRenderer extends DefaultFormRenderer
             ]
         );
         $button->addHtml(
-            Html::el('span',
+            Html::el(
+                'span',
                 [
                     'aria-hidden' => 'true'
                 ]
