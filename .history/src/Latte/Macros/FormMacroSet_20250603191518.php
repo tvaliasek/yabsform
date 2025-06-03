@@ -51,7 +51,7 @@ class FormMacroSet extends MacroSet
                 ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word]; if ($_label = $_input'
                 : 'if ($_label = end($this->global->formsStack)[%0.word]'
             )
-            . ') echo $form->getRenderer()->renderLabel($_label)',
+            . ') echo $_form->getRenderer()->renderLabel($_label)',
             $name
         );
 
@@ -75,7 +75,7 @@ class FormMacroSet extends MacroSet
                 ? '$_pair = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
                 : '$_pair = end($this->global->formsStack)[%0.word];'
             )
-            . 'echo $form->getRenderer()->renderPair($_pair'
+            . 'echo $_form->getRenderer()->renderPair($_pair'
             . ") /* line $node->startLine */",
             $name
         );
@@ -105,7 +105,7 @@ class FormMacroSet extends MacroSet
                     ? '$_input = is_object(%0.word) ? %0.word : end($this->global->formsStack)[%0.word];'
                     : '$_input = end($this->global->formsStack)[%0.word];'
             )
-            . 'echo $form->getRenderer()->renderControl($_input'
+            . 'echo $_form->getRenderer()->renderControl($_input'
             . ") /* line $node->startLine */",
             $name
         );
@@ -124,7 +124,7 @@ class FormMacroSet extends MacroSet
             throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
         }
         $node->replaced = true;
-        return $writer->write('echo $form->getRenderer()->renderErrors(null, false, $form);');
+        return $writer->write('echo $_form->getRenderer()->renderErrors(null, false, $_form);');
     }
 
     /**
@@ -140,6 +140,6 @@ class FormMacroSet extends MacroSet
             throw new CompileException('Modifiers are not allowed in ' . $node->getNotation());
         }
         $node->replaced = true;
-        return $writer->write('echo $form->getRenderer()->renderErrors(null, true, $form);');
+        return $writer->write('echo $_form->getRenderer()->renderErrors(null, true, $_form);');
     }
 }
